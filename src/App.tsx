@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Header from './components/Header';
+import Countries from './components/Countries';
+import countries from './data/countries.json';
 
 import './App.css';
 
 const App = () => {
+  const [data] = useState(countries);
   return (
     <div className="App">
-      <header>
-        <h1>Template for Typescript - React App</h1>
-      </header>
+      <Header title="React Table & Pagination" />
+      <div className="container px-2">
+        <Countries data={data} startFrom={1} />
+        <Countries data={data} startFrom={5} itemsPerPage={25} />
+      </div>
     </div>
   );
 };

@@ -1,26 +1,29 @@
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 
-interface usePaginationProps<Tdata> {
+export interface usePaginationProps<Tdata> {
   itemsPerPage?: number;
   data: Tdata[];
   startFrom: number;
 }
 
-interface PaginationProps {
+export interface PaginationProps {
   id: number;
   current: boolean;
   ellipsis: boolean;
 }
 
-interface UsePaginationReturn<Tdata> {
+export interface UsePaginationReturn<Tdata> {
   slicedData: Tdata[];
-  pagination: [] | PaginationProps[];
-  prevPage: (e: ChangeEvent) => void;
-  nextPage: (e: ChangeEvent) => void;
-  changePage: (page: number, e: ChangeEvent) => void;
+  pagination: PaginationProps[];
+  prevPage: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  nextPage: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  changePage: (
+    page: number,
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => void;
 }
 
-const usePagination = <Tdata>({
+export const usePagination = <Tdata>({
   itemsPerPage,
   data,
   startFrom,
@@ -44,7 +47,6 @@ const usePagination = <Tdata>({
   let ellipsisLeft = false;
   let ellipsisRight = false;
 
-  // eslint-disable-next-line no-plusplus
   Array.from({ length: pages }, (v: unknown, k: number) => k + 1).forEach(
     (page: number) => {
       if (page === currentPage) {
@@ -66,7 +68,10 @@ const usePagination = <Tdata>({
     },
   );
 
-  const changePage = (page: number, e: ChangeEvent): void => {
+  const changePage = (
+    page: number,
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ): void => {
     e.preventDefault();
     if (page !== currentPage) {
       setCurrentPage(page);
@@ -74,7 +79,9 @@ const usePagination = <Tdata>({
     }
   };
 
-  const goToPrev = (e: ChangeEvent): void => {
+  const goToPrev = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ): void => {
     e.preventDefault();
     setCurrentPage((prevValue: number) =>
       prevValue - 1 === 0 ? prevValue : prevValue - 1,
@@ -89,7 +96,9 @@ const usePagination = <Tdata>({
     }
   };
 
-  const gotToNext = (e: ChangeEvent): void => {
+  const gotToNext = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ): void => {
     e.preventDefault();
     setCurrentPage((prevValue: number) =>
       prevValue === pages ? prevValue : prevValue + 1,
@@ -109,5 +118,3 @@ const usePagination = <Tdata>({
     changePage,
   };
 };
-
-export default usePagination;
