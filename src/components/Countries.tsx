@@ -18,11 +18,24 @@ interface CountriesTypes {
   emojiU: string | null;
 }
 
+interface SearchByDataProps {
+  label: string;
+  value: string;
+}
+
+type CountriesPropsTypes<TSearch, TPagination> = TPagination & {
+  searchByData?: TSearch;
+};
+
 const Countries = ({
   itemsPerPage,
   data,
   startFrom,
-}: usePaginationProps<CountriesTypes>) => {
+  searchByData,
+}: CountriesPropsTypes<
+  SearchByDataProps[],
+  usePaginationProps<CountriesTypes>
+>) => {
   const {
     slicedData,
     prevPage,
@@ -31,7 +44,38 @@ const Countries = ({
     pagination,
   } = usePagination({ itemsPerPage, data, startFrom });
   return (
-    <>
+    <div className="wrapper">
+      {searchByData && (
+        <>
+          <form action="" className="my-3 is-flex is-justify-content-center">
+            <div className="select mr-2">
+              <select name="Select" id="">
+                {searchByData.map((search: SearchByDataProps) => (
+                  <option value={search.value} key={search.value}>
+                    {search.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field mr-2">
+              <div className="control">
+                <input
+                  type="text"
+                  name="Search"
+                  className="input"
+                  placeholder="Search..."
+                />
+              </div>
+            </div>
+            <button type="submit" className="button is-link">
+              Search
+            </button>
+          </form>
+          <h2 className="mb-6 has-text-centered is-size-2">
+            Search Results for: &ldquo;Search value&rdquo;
+          </h2>
+        </>
+      )}
       <table className="table is-fullwidth is-striped">
         <thead>
           <tr>
@@ -90,8 +134,12 @@ const Countries = ({
           })}
         </ul>
       </nav>
-    </>
+    </div>
   );
+};
+
+Countries.defaultProps = {
+  searchByData: undefined,
 };
 
 export default Countries;
