@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface usePaginationProps<Tdata> {
   itemsPerPage?: number;
@@ -29,6 +29,8 @@ export const usePagination = <Tdata>({
   startFrom,
 }: usePaginationProps<Tdata>): UsePaginationReturn<Tdata> => {
   const perPage = itemsPerPage || 10;
+  const [searching, setSearching] = useState(false);
+  const [filteredData, setFilteredData] = useState(data);
   const pages = Math.ceil(data.length / perPage);
   const pagination: PaginationProps[] = [];
   const [currentPage, setCurrentPage] = useState(
@@ -37,6 +39,19 @@ export const usePagination = <Tdata>({
   const [slicedData, setSliceData] = useState(
     [...data].slice((currentPage - 1) * perPage, currentPage * perPage),
   );
+
+  useEffect(() => {
+    setSliceData(
+      [...filteredData].slice(
+        (currentPage - 1) * perPage,
+        currentPage * perPage,
+      ),
+    );
+    if (searching) {
+      setCurrentPage(1);
+      setSearching(false);
+    }
+  }, [filteredData, currentPage]);
 
   const pushPage = (
     page: number,
