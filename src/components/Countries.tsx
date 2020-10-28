@@ -43,6 +43,8 @@ const Countries = ({
     nextPage,
     changePage,
     pagination,
+    setFilteredData,
+    setSearching,
   } = usePagination({ itemsPerPage, data, startFrom });
   const [search, setSearch] = useState('');
   const [searchBy, setSearchBy] = useState(
@@ -54,6 +56,7 @@ const Countries = ({
     e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     e.preventDefault();
+    setSearching(true);
     const filteredData = [...data].filter((country: CountriesTypes) => {
       let searchKey = 'name';
       if (searchByData && searchByData.length > 0) {
@@ -63,7 +66,9 @@ const Countries = ({
         ?.toLowerCase()
         .includes(search.trim().toLowerCase());
     });
+    setFilteredData(filteredData);
     setSearchFor(search);
+    setSearching(false);
   };
 
   return (
@@ -73,10 +78,7 @@ const Countries = ({
           <form
             action=""
             className="my-3 is-flex is-justify-content-center"
-            onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-              e.preventDefault();
-              setSearchFor(search);
-            }}
+            onSubmit={submitHandler}
           >
             <div className="select mr-2">
               <select
@@ -111,17 +113,14 @@ const Countries = ({
             <button
               type="submit"
               className="button is-link"
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.preventDefault();
-                setSearchFor(search);
-              }}
+              onClick={submitHandler}
             >
               Search
             </button>
           </form>
           {searchFor && (
             <h2 className="mb-6 has-text-centered is-size-2">
-              Search Results for: &ldquo;Search value&rdquo;
+              {`Search Results For: ${searchFor}`}
             </h2>
           )}
         </>
@@ -170,6 +169,7 @@ const Countries = ({
                 if (!page.ellipsis) {
                   return (
                     <button
+                      key={page.id}
                       type="button"
                       className={`pagination-link ${
                         page.current ? 'is-current' : ''
