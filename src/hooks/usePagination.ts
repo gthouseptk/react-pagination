@@ -23,6 +23,7 @@ export interface UsePaginationReturn<Tdata> {
   ) => void;
   setFilteredData: React.Dispatch<React.SetStateAction<Tdata[]>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
+  filteredData: Tdata[];
 }
 
 export const usePagination = <Tdata>({
@@ -127,6 +128,7 @@ export const usePagination = <Tdata>({
   return {
     slicedData,
     pagination,
+    filteredData,
     prevPage: goToPrev,
     nextPage: gotToNext,
     changePage,

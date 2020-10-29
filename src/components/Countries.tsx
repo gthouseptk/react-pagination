@@ -19,6 +19,10 @@ interface CountriesTypes {
   emojiU: string | null;
 }
 
+interface IndexArrayString {
+  [key: string]: string | number | null;
+}
+
 interface SearchByDataProps {
   label: string;
   value: string;
@@ -45,28 +49,72 @@ const Countries = ({
     pagination,
     setFilteredData,
     setSearching,
+    filteredData,
   } = usePagination({ itemsPerPage, data, startFrom });
   const [search, setSearch] = useState('');
   const [searchBy, setSearchBy] = useState(
     searchByData && searchByData.length >= 1 ? searchByData[0].value : '',
   );
   const [searchFor, setSearchFor] = useState('');
+  const [sortByKey, setSortByKey] = useState('name');
+  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+
+  const columns: SearchByDataProps[] = [
+    { label: 'Country', value: 'name' },
+    { label: 'Capital', value: 'capital' },
+    { label: 'Country Code', value: 'iso2' },
+    { label: 'Currency', value: 'currency' },
+    { label: 'Phone Code', value: 'phone_code' },
+  ];
+
+  const sortData = <TSort extends IndexArrayString>(
+    dataArr: TSort[],
+    sortBy: string,
+    orderBy: 'asc' | 'desc',
+  ) => {
+    const sorted = dataArr.sort((a: TSort, b: TSort): number => {
+      const aSort = a[sortBy] || '';
+      const bSort = b[sortBy] || '';
+
+      if (orderBy === 'asc') {
+        if (aSort < bSort) return -1;
+        if (aSort > bSort) return 1;
+        return 0;
+      }
+      if (aSort > bSort) return -1;
+      if (aSort < bSort) return 1;
+      return 0;
+    });
+    return sorted;
+  };
+
+  const handleSort = (sortBy: string, orderBy: 'asc' | 'desc') => {
+    if (sortByKey !== sortBy) {
+      setSortByKey(sortBy);
+    }
+    if (orderBy !== order) {
+      setOrder(orderBy);
+    }
+    const sorted = sortData([...filteredData], sortBy, orderBy);
+    setFilteredData(sorted);
+  };
 
   const submitHandler = (
     e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     e.preventDefault();
     setSearching(true);
-    const filteredData = [...data].filter((country: CountriesTypes) => {
+    const searchedData = [...data].filter((country: CountriesTypes) => {
       let searchKey = 'name';
       if (searchByData && searchByData.length > 0) {
         searchKey = searchBy;
       }
-      return `${country[searchKey]}`
-        ?.toLowerCase()
+      return `${country[searchKey] || ''}`
+        .toLowerCase()
         .includes(search.trim().toLowerCase());
     });
-    setFilteredData(filteredData);
+    const sortFiltered = sortData([...searchedData], sortByKey, order);
+    setFilteredData(sortFiltered);
     setSearchFor(search);
     setSearching(false);
   };
@@ -130,11 +178,32 @@ const Countries = ({
           <table className="table is-fullwidth is-striped">
             <thead>
               <tr>
-                <th>Country</th>
-                <th>Capital</th>
-                <th>Code</th>
-                <th>Currency</th>
-                <th>Phone Code</th>
+                {columns.map((col: SearchByDataProps) => (
+                  <th
+                    key={col.value}
+                    onClick={() =>
+                      handleSort(
+                        col.value,
+                        sortByKey === col.value
+                          ? order === 'asc'
+                            ? 'desc'
+                            : 'asc'
+                          : 'asc',
+                      )
+                    }
+                  >
+                    {col.label}
+                    {sortByKey === col.value && (
+                      <span className="icon">
+                        {order === 'asc' ? (
+                          <i className="fas fa-sort-up" />
+                        ) : (
+                          <i className="fas fa-sort-down" />
+                        )}
+                      </span>
+                    )}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
